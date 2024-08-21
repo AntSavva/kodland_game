@@ -184,8 +184,8 @@ def shoot_enemy_bullet(enemy):
 
 def check_collisions():
     global score
-    for bullet in bullets[:]:
-        for enemy in enemies[:]:
+    for bullet in bullets:
+        for enemy in enemies:
             if bullet.colliderect(enemy.actor):
                 bullet.y = -10
                 enemy.hits -= 1
@@ -193,7 +193,7 @@ def check_collisions():
                     enemy.exploding = True
                     score += 10
 
-    for bullet in enemy_bullets[:]:
+    for bullet in enemy_bullets:
         if bullet.colliderect(ship):
             enemy_bullets.remove(bullet)
             ship.health -= 1
