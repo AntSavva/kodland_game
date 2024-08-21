@@ -4,7 +4,6 @@ import random
 WIDTH = 800
 HEIGHT = 600
 
-
 menu_active = True
 music_on = False
 game_active = False
@@ -16,19 +15,57 @@ enemy_bullets = []
 
 score = 0
 
-ship = Actor('ship.png', (WIDTH // 2, HEIGHT - 100))
-ship.health = 3
-ship.blinking = False
-ship.blink_timer = 0
+background = Actor('background.png', (WIDTH // 2, HEIGHT // 2))
 
+class Player(Actor):
+    def __init__(self):
+        super().__init__('ship.png', (WIDTH // 2, HEIGHT - 100))
+        self.health = 3
+        self.blinking = False
+        self.blink_timer = 0
+        
+
+    def update(self):
+
+        if keyboard.left or keyboard[keys.A]:
+            self.x -= 5
+            self.image = "fly_copy"
+        elif keyboard.right or keyboard[keys.D]:
+            self.x += 5
+            self.image = "fly_copy"
+        elif keyboard.up or keyboard[keys.W]:
+            self.y -= 5
+            self.image = "fly_copy"
+        elif keyboard.down or keyboard[keys.S]:
+            self.y += 5
+            self.image = "fly_copy"
+        else:
+            self.image = "ship.png"
+
+        if self.blinking:
+            self.blink_timer += 1
+            if self.blink_timer % 20 < 10:
+                self.image = 'red_ship.png'
+            else:
+                self.image = 'ship.png'
+
+            if self.blink_timer >= 60:
+                self.blinking = False
+                self.blink_timer = 0
+                self.image = 'ship.png'
+
+    def shoot(self):
+        bullet = Actor('bull.png', (self.x, self.y - 50))
+        if music_on:
+            music.play_once("shoot.mp3")
+        bullets.append(bullet)
+
+player = Player()
 
 start_button = Actor('start_game.svg', (WIDTH // 2, HEIGHT - 200))
 music_button = Actor('off_music.svg', (WIDTH // 2, HEIGHT - 150))
 exit_button = Actor('button_exit.svg', (WIDTH // 2, HEIGHT - 100))
 restart_button = Actor('restart_button.png', (WIDTH // 2, HEIGHT - 200))
-
-
-background = Actor('background.png', (WIDTH // 2, HEIGHT // 2))
 
 class Enemy:
     def __init__(self, x, y):
@@ -69,7 +106,7 @@ def draw():
 
 def draw_game():
     background.draw()
-    ship.draw()
+    player.draw()
     for bullet in bullets:
         bullet.draw()
     for bullet in enemy_bullets:
@@ -104,26 +141,26 @@ def on_mouse_down(pos):
 def on_key_down(key):
     if game_active:
         if key == keys.SPACE:
-            shoot()
+            player.shoot()
 
 def start_game():
     global menu_active, game_active, result_active, score, bullets, enemies, enemy_bullets
     menu_active = False
     result_active = False
     game_active = True
-    ship.health = 3
-    ship.blinking = False
-    ship.blink_timer = 0
+    player.health = 3
+    player.blinking = False
+    player.blink_timer = 0
     score = 0
     bullets.clear()
     enemies.clear()
     enemy_bullets.clear()
-    ship.pos = (WIDTH // 2, HEIGHT - 100)
+    player.pos = (WIDTH // 2, HEIGHT - 100)
     spawn_enemy()
 
 def toggle_music():
     global music_on
-    if music_on == True:
+    if music_on:
         music_button.image = 'off_music.svg'
         music_on = False
         music.stop()
@@ -134,28 +171,6 @@ def toggle_music():
 
 def exit_game():
     quit()
-
-def update_ship():
-    if keyboard.left or keyboard[keys.A]:
-        ship.x -= 5
-    if keyboard.right or keyboard[keys.D]:
-        ship.x += 5
-    if keyboard.up or keyboard[keys.W]:
-        ship.y -= 5
-    if keyboard.down or keyboard[keys.S]:
-        ship.y += 5
-
-    if ship.blinking:
-        ship.blink_timer += 1
-        if ship.blink_timer % 20 < 10:
-            ship.image = 'red_ship.png'
-        else:
-            ship.image = 'ship.png'
-
-        if ship.blink_timer >= 60:
-            ship.blinking = False
-            ship.blink_timer = 0
-            ship.image = 'ship.png'
 
 def update_bullets():
     for bullet in bullets:
@@ -170,13 +185,9 @@ def update_enemy_bullets():
             enemy_bullets.remove(bullet)
 
 def update_enemies():
-    for enemy in enemies:
+    for enemy in enemies[:]:
         if enemy.update():
             enemies.remove(enemy)
-
-def shoot():
-    bullet = Actor('bull.png', (ship.x, ship.y - 50))
-    bullets.append(bullet)
 
 def shoot_enemy_bullet(enemy):
     bullet = Actor('bull.png', (enemy.actor.x, enemy.actor.y + 50))
@@ -194,11 +205,11 @@ def check_collisions():
                     score += 10
 
     for bullet in enemy_bullets:
-        if bullet.colliderect(ship):
+        if bullet.colliderect(player):
             enemy_bullets.remove(bullet)
-            ship.health -= 1
-            ship.blinking = True
-            if ship.health <= 0:
+            player.health -= 1
+            player.blinking = True
+            if player.health <= 0:
                 game_over()
 
 def spawn_enemy():
@@ -208,22 +219,19 @@ def spawn_enemy():
 
 def update():
     if game_active:
-        update_ship()
+        player.update()
         update_bullets()
         update_enemy_bullets()
         update_enemies()
         check_collisions()
 
-        
-        if len(enemies) < 3:  
-            if random.randint(0, 50) == 0:  
+        if len(enemies) < 3:
+            if random.randint(0, 50) == 0:
                 spawn_enemy()
 
 def game_over():
     global game_active, result_active
     game_active = False
     result_active = True
-    
-    
 
 pgzrun.go()
