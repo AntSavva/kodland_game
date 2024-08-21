@@ -4,7 +4,7 @@ import random
 WIDTH = 800
 HEIGHT = 600
 
-# Переменные для меню
+
 menu_active = True
 music_on = False
 game_active = False
@@ -21,7 +21,7 @@ ship.health = 3
 ship.blinking = False
 ship.blink_timer = 0
 
-# Загрузка изображений кнопок
+
 start_button = Actor('start_game.svg', (WIDTH // 2, HEIGHT - 200))
 music_button = Actor('off_music.svg', (WIDTH // 2, HEIGHT - 150))
 exit_button = Actor('button_exit.svg', (WIDTH // 2, HEIGHT - 100))
