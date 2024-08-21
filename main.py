@@ -170,7 +170,7 @@ def update_enemy_bullets():
             enemy_bullets.remove(bullet)
 
 def update_enemies():
-    for enemy in enemies[:]:
+    for enemy in enemies:
         if enemy.update():
             enemies.remove(enemy)
 
